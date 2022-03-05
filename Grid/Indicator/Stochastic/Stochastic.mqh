@@ -38,14 +38,14 @@ void sto_indicators() {
 	if(buys == 0 && Time_to_Trade()) {
 		if (Use_Stoch) {
 			if(!stopNextCycle && !restAndRealize && Indicators_Buy()) {
-				ticket = OrderSendReliable(Symbol(), OP_BUY, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_ASK), slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
+				ticket = OrderSendReliable(Symbol(), OP_BUY, InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
 				if(sells == 0 && both_cycle) {
-					ticket = OrderSendReliable(Symbol(), OP_SELL, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
+					ticket = OrderSendReliable(Symbol(), OP_SELL, InitLot(), MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
 				}
 			}
 		} else {
 			if(!stopNextCycle && !restAndRealize) {
-				ticket = OrderSendReliable(Symbol(), OP_BUY, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_ASK), slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
+				ticket = OrderSendReliable(Symbol(), OP_BUY, InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
 			}
 		}
 	}
@@ -53,14 +53,14 @@ void sto_indicators() {
 	if(sells == 0 && Time_to_Trade()) {
 		if(Use_Stoch) {
 			if(!stopNextCycle && !restAndRealize && Indicators_Sell()) {
-				ticket = OrderSendReliable(Symbol(), OP_SELL, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
+				ticket = OrderSendReliable(Symbol(), OP_SELL, InitLot(), MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
 				if(buys == 0 && both_cycle) {
-					ticket = OrderSendReliable(Symbol(), OP_BUY, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_ASK), slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
+					ticket = OrderSendReliable(Symbol(), OP_BUY, InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
 				}
 			}
 		} else {
 			if(!stopNextCycle && !restAndRealize) {
-				ticket = OrderSendReliable(Symbol(), OP_SELL, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
+				ticket = OrderSendReliable(Symbol(), OP_SELL, InitLot(), MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
 			}
 		}
    }

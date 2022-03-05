@@ -18,72 +18,71 @@ void NewsOnTick()
 {
     double CheckNews = 0;
     if(nMinsAfterNews > 0) {
-            if(TimeCurrent()-nLastUpd >= nUpdate) {
+        if(TimeCurrent()-nLastUpd >= nUpdate) {
             Comment("News Loading...");
             nNewsString = "News Loading...";
-                Print("News Loading...");
-                NewsUpdate();
-                nLastUpd = TimeCurrent();
-                Comment("");
-                nNewsString = "~";
-            }
-            
-            WindowRedraw();
-            //---- Draw a line on the chart news ----
-            if(nDrawLines) { 
-                for(int i=0; i<nNomNews; i++) {
-                    string Name = StringSubstr(TimeToStr(NewsTimeFunc(i), TIME_MINUTES)+"_"+nNewsArr[1][i]+"_"+nNewsArr[3][i], 0, 63);
-                    if(nNewsArr[3][i] != "") if(ObjectFind(Name) == 0) continue;
-                    if(StringFind(nSymbol, nNewsArr[1][i]) < 0) continue;
-                    if(NewsTimeFunc(i) < TimeCurrent() && nNextLine) continue;
+            Print("News Loading...");
+            NewsUpdate();
+            nLastUpd = TimeCurrent();
+            Comment("");
+            nNewsString = "~";
+        }
+        
+        WindowRedraw();
+        //---- Draw a line on the chart news ----
+        if(nDrawLines) { 
+            for(int i=0; i<nNomNews; i++) {
+                string Name = StringSubstr(TimeToStr(NewsTimeFunc(i), TIME_MINUTES)+"_"+nNewsArr[1][i]+"_"+nNewsArr[3][i], 0, 63);
+                if(nNewsArr[3][i] != "") if(ObjectFind(Name) == 0) continue;
+                if(StringFind(nSymbol, nNewsArr[1][i]) < 0) continue;
+                if(NewsTimeFunc(i) < TimeCurrent() && nNextLine) continue;
 
-                    color clrf = clrNONE;
-                    if(nImpact && StringFind(nNewsArr[2][i], "High") >= 0) clrf = nLineColor;
-                    if(clrf == clrNONE) continue;
-                    if(nNewsArr[3][i] != "") {
-                        ObjectCreate(Name, 0, OBJ_VLINE, NewsTimeFunc(i), 0);
-                        ObjectSet(Name, OBJPROP_COLOR, clrf);
-                        ObjectSet(Name, OBJPROP_STYLE, nLineStyle);
-                        ObjectSetInteger(0, Name, OBJPROP_BACK, true);
-                    }
+                color clrf = clrNONE;
+                if(nImpact && StringFind(nNewsArr[2][i], "High") >= 0) clrf = nLineColor;
+                if(clrf == clrNONE) continue;
+                if(nNewsArr[3][i] != "") {
+                    ObjectCreate(Name, 0, OBJ_VLINE, NewsTimeFunc(i), 0);
+                    ObjectSet(Name, OBJPROP_COLOR, clrf);
+                    ObjectSet(Name, OBJPROP_STYLE, nLineStyle);
+                    ObjectSetInteger(0, Name, OBJPROP_BACK, true);
                 }
             }
-            
-            //---- Event Processing ----
-            int i;
-            CheckNews = 0;
-            for(i=0; i<nNomNews; i++) {
-                int power = 0;
-                if(nImpact && StringFind(nNewsArr[2][i], "High") >= 0) power = 1;
-                if(power == 0) continue;
-                if(TimeCurrent()+nMinBefore*60 > NewsTimeFunc(i) && 
-                    TimeCurrent()-nMinAfter*60 < NewsTimeFunc(i) && 
-                    StringFind(nSymbol, nNewsArr[1][i]) >= 0) {
-                    CheckNews=1;
-                    break;
-                } else { 
-                    CheckNews=0;
-                }
-            }
-            
-            if(CheckNews == 1 && i != nNow && nSignal) { 
-                Alert("In ", (int)(NewsTimeFunc(i)-TimeCurrent())/60, " minutes released news ", nNewsArr[1][i], "_", nNewsArr[3][i]);
-                nNow = i;
+        }
+        
+        //---- Event Processing ----
+        int i;
+        CheckNews = 0;
+        for(i=0; i<nNomNews; i++) {
+            int power = 0;
+            if(nImpact && StringFind(nNewsArr[2][i], "High") >= 0) power = 1;
+            if(power == 0) continue;
+            if(TimeCurrent()+nMinBefore*60 > NewsTimeFunc(i) && 
+                TimeCurrent()-nMinAfter*60 < NewsTimeFunc(i) && 
+                StringFind(nSymbol, nNewsArr[1][i]) >= 0) {
+                CheckNews=1;
+                break;
+            } else { 
+                CheckNews=0;
             }
         }
-
-        if(CheckNews > 0) {
-            Comment("News time");
-            nNewsString = "News time";
-            run = false;
-            CloseAllOrders();
-
-            if(!IsTesting()) Alert("News! High Impact!");
-            return;
-        } else {
-            Comment("No news");
-            nNewsString = "No news";
+        
+        if(CheckNews == 1 && i != nNow && nSignal) { 
+            Alert("In ", (int)(NewsTimeFunc(i)-TimeCurrent())/60, " minutes released news ", nNewsArr[1][i], "_", nNewsArr[3][i]);
+            nNow = i;
         }
+    }
+
+    if(CheckNews > 0) {
+        Comment("News time");
+        nNewsString = "News time";
+        run = false;
+        CloseAllOrders();
+
+        if(!IsTesting()) Alert("News! High Impact!");
+        return;
+    } else {
+        Comment("No news");
+        nNewsString = "No news";
     }
 }
 

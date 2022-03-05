@@ -4,13 +4,14 @@ extern double   Lot             = 0.01; // Initial Lot Size
 extern double   TargetEquity    = 100000000.0; // Target Equity (USD) 
 extern double   DailyTarget     = 0; // Daily Target (USD). 0 to Ignore
 extern double   Spread          = 10.0; // Max Spread
+extern double   MaxSlippage 	= 2.0; // Slippage
 
 extern string   Engine1         = "==== MAIN STRATEGY ===="; // >>> MAIN ATTACK
 enum ENUM_SEQUENCE {
-	FIX, // Fixed Lot 
-	DA, // D´Alembert
-	MARTI, // Martingale
-	FIBO // Fibonacci
+	FIX, // FIXED LOT 
+	DA, // D´ALEMBERT
+	MARTI, // MARTINGALE
+	FIBO // FIBONACCI
 };
 extern ENUM_SEQUENCE Sequence 	= FIBO; // Progression (Sequence)
 extern double   Multiplier      = 1.4; // Multiplier (Martingale Only)
@@ -32,18 +33,27 @@ extern string   Engine3         = "==== GAMBLING (FULL MARGIN) ===="; // >>> DEF
 extern bool     Reload          = true; // Reload Hedge
 extern bool     FullLots        = true; // Full Lots
 
-extern string   TimeSettings    = ""; // ==== TIME SETTINGS ====
-extern bool     TimeFilter      = false; // Time Filter
-extern int      StartHour       = 24; // Start Hour (Market Watch)
-extern int      EndHour         = 8; // End Hour (Market Watch)
+#ifdef __time__
+	extern string   TimeSettings    = ""; // ==== TIME SETTINGS ====
+	extern bool     TimeFilter      = false; // Time Filter
+	extern int      StartHour       = 24; // Start Hour (Market Watch)
+	extern int      EndHour         = 8; // End Hour (Market Watch)
+#endif
 
-extern string   NewsFilters     = ""; // ==== NEWS FILTER ====
-input bool      nAvoidNews      = false; // Avoid News (High Impact)
-input int       nMinsBeforeNews = 60; // Close Before News (Min)
-input int       nMinsAfterNews  = 60; // Open After News (Min)
-input int       nTimeZone       = 8; // Time Zone, GMT (for news)
-input string    nPairs          = "USD,EUR"; // Affected Pairs (empty to current pairs) 
+#ifdef __news__
+	extern string   NewsFilters     = ""; // ==== NEWS FILTER ====
+	input bool      nAvoidNews      = false; // Avoid News (High Impact)
+	input int       nMinsBeforeNews = 60; // Close Before News (Min)
+	input int       nMinsAfterNews  = 60; // Open After News (Min)
+	input int       nTimeZone       = 8; // Time Zone, GMT (for news)
+	input string    nPairs          = "USD,EUR"; // Affected Pairs (empty to current pairs) 
+#endif
 
-extern string   ProtectSettings = ""; // ==== PROTECTION SETTINGS ====
-extern bool     TotalLoss       = false; // Use Total Loss
-extern double   AccountLock     = 100000000.0; // Maximal Loss Allowed (USD)
+#ifdef __protection__
+	extern string   ProtectSettings = ""; // ==== PROTECTION SETTINGS ====
+	extern int 		MaxOrders      	= 0; // Max Position (Layers)
+	extern int 		ProfitChasing   = 0; // Number of Lots for chasing profit
+	extern double 	ProfitLock     	= 0.80;     // Profit Lock
+	extern bool     TotalLoss       = false; // Use Total Loss
+	extern double   AccountLock     = 100000000.0; // Maximal Loss Allowed (USD)
+#endif

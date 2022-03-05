@@ -26,7 +26,7 @@ void atr_indicators() {
 		}
 
 		if(!stopNextCycle && !restAndRealize) {
-			ticket = OrderSendReliable(Symbol(), OP_BUY, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_ASK), slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
+			ticket = OrderSendReliable(Symbol(), OP_BUY, InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, key + "-" + (string)buys, magic, 0, Blue);
 		}
 	}
 
@@ -36,7 +36,7 @@ void atr_indicators() {
 			take_profit = TP_Multiplier * ATR_Grid_Size() / ATR_Multiplier;
 		}
 		if(!stopNextCycle && !restAndRealize) {
-			ticket = OrderSendReliable(Symbol(), OP_SELL, CalculateStartingVolume(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
+			ticket = OrderSendReliable(Symbol(), OP_SELL, InitLot(), MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, key + "-" + (string)sells, magic, 0, Red);
 		}
 	}
 }
