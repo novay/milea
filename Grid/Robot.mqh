@@ -21,101 +21,101 @@ void Robot()
     // **************************************************
     // BUYS == 1
     // **************************************************
-    if(buys == 1) {
-        // CASE 1 >>> We reach Stop Loss (grid size)
-        if(!stop_next_cycle && !rest_and_realize && MaxOrders > 1) {
-            if(buy_profit[buys - 1] <= StopLoss(buy_lots[buys - 1], 1)) {
-                OpenPosition(OP_BUY, Magic1, false);
-            }
-        }
+    // if(buys == 1) {
+    //     // CASE 1 >>> We reach Stop Loss (grid size)
+    //     if(!stop_next_cycle && !rest_and_realize && MaxOrders > 1) {
+    //         if(buy_profit[buys - 1] <= StopLoss(buy_lots[buys - 1], 1)) {
+    //             OpenPosition(OP_BUY, Magic1, false);
+    //         }
+    //     }
 
-        // CASE 2.1 >>> We reach Take Profit so we activate profit lock
-        if(buy_max_profit == 0 && local_total_buy_profit > TakeProfit(buy_lots[0])) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * buy_max_profit;
-        }
+    //     // CASE 2.1 >>> We reach Take Profit so we activate profit lock
+    //     if(buy_max_profit == 0 && local_total_buy_profit > TakeProfit(buy_lots[0])) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * buy_max_profit;
+    //     }
 
-        // CASE 2.2 >>> Profit locked is updated in real time
-        if(buy_max_profit > 0 && local_total_buy_profit > buy_max_profit) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * local_total_buy_profit;
-        }
+    //     // CASE 2.2 >>> Profit locked is updated in real time
+    //     if(buy_max_profit > 0 && local_total_buy_profit > buy_max_profit) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * local_total_buy_profit;
+    //     }
 
-        // CASE 2.3 >>> If profit falls below profit locked we close all orders
-        if(buy_max_profit > 0 && buy_close_profit > 0 && buy_max_profit >= buy_close_profit && local_total_buy_profit < buy_close_profit) {
-            // At this point all order are closed.
-            // Global vars will be updated thanks to UpdateVars() on next start() execution
-            closeAllBuys();
-        }
-    }
+    //     // CASE 2.3 >>> If profit falls below profit locked we close all orders
+    //     if(buy_max_profit > 0 && buy_close_profit > 0 && buy_max_profit >= buy_close_profit && local_total_buy_profit < buy_close_profit) {
+    //         // At this point all order are closed.
+    //         // Global vars will be updated thanks to UpdateVars() on next start() execution
+    //         closeAllBuys();
+    //     }
+    // }
 
     // **************************************************
     // BUYS > 1
     // **************************************************
-    if(buys > 1) {
-        // CASE 1 >>> We reach Stop Loss (grid size)
-        if(buy_profit[buys - 1] <= StopLoss(buy_lots[buys - 1], buys)) {
-            // We are going to open a new order if we have less than 90 orders opened.
-            // Volume depends on chosen Sequence.
-            if(buys < max_auto_open_positions) {
-                if(buys < MaxOrders && !buy_max_order_lot_open) {
-                    OpenPosition(OP_BUY, Magic1, false);
-                }
-            }
-        }
+    // if(buys > 1) {
+    //     // CASE 1 >>> We reach Stop Loss (grid size)
+    //     if(buy_profit[buys - 1] <= StopLoss(buy_lots[buys - 1], buys)) {
+    //         // We are going to open a new order if we have less than 90 orders opened.
+    //         // Volume depends on chosen Sequence.
+    //         if(buys < max_auto_open_positions) {
+    //             if(buys < MaxOrders && !buy_max_order_lot_open) {
+    //                 OpenPosition(OP_BUY, Magic1, false);
+    //             }
+    //         }
+    //     }
 
-        // CASE 2.1 >>> We reach Take Profit so we activate profit lock
-        if(buy_max_profit == 0 && Sequence == 0 && local_total_buy_profit > TakeProfit(buy_lots[0])) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * buy_max_profit;
-            if (!buy_chased && ProfitChasing > 0) {
-                if (buys < max_auto_open_positions && buys < MaxOrders) {
-                    ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
-                }
-                buy_chased = true;
-            }
-        }
-        if(buy_max_profit == 0 && Sequence == 1 && local_total_buy_profit > buys * TakeProfit(buy_lots[0])) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * buy_max_profit;
-            if(!buy_chased && ProfitChasing > 0) {
-                if (buys < max_auto_open_positions && buys < MaxOrders)
-                ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
-                buy_chased = true;
-            }
-        }
-        if(buy_max_profit == 0 && Sequence == 2 && local_total_buy_profit > TakeProfit(buy_lots[buys - 1])) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * buy_max_profit;
-            if(!buy_chased && ProfitChasing > 0) {
-                if (buys < max_auto_open_positions && buys < MaxOrders) {
-                    ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
-                }
-                buy_chased = true;
-            }
-        }
-        if(buy_max_profit == 0 && Sequence == 3 && local_total_buy_profit > TakeProfit(buy_lots[buys - 1])) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * buy_max_profit;
-            if(!buy_chased && ProfitChasing > 0) {
-                if (buys < max_auto_open_positions && buys < MaxOrders) {
-                    ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
-                }
-                buy_chased = true;
-            }
-        }
+    //     // CASE 2.1 >>> We reach Take Profit so we activate profit lock
+    //     if(buy_max_profit == 0 && Sequence == 0 && local_total_buy_profit > TakeProfit(buy_lots[0])) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * buy_max_profit;
+    //         if (!buy_chased && ProfitChasing > 0) {
+    //             if (buys < max_auto_open_positions && buys < MaxOrders) {
+    //                 ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
+    //             }
+    //             buy_chased = true;
+    //         }
+    //     }
+    //     if(buy_max_profit == 0 && Sequence == 1 && local_total_buy_profit > buys * TakeProfit(buy_lots[0])) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * buy_max_profit;
+    //         if(!buy_chased && ProfitChasing > 0) {
+    //             if (buys < max_auto_open_positions && buys < MaxOrders)
+    //             ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
+    //             buy_chased = true;
+    //         }
+    //     }
+    //     if(buy_max_profit == 0 && Sequence == 2 && local_total_buy_profit > TakeProfit(buy_lots[buys - 1])) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * buy_max_profit;
+    //         if(!buy_chased && ProfitChasing > 0) {
+    //             if (buys < max_auto_open_positions && buys < MaxOrders) {
+    //                 ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
+    //             }
+    //             buy_chased = true;
+    //         }
+    //     }
+    //     if(buy_max_profit == 0 && Sequence == 3 && local_total_buy_profit > TakeProfit(buy_lots[buys - 1])) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * buy_max_profit;
+    //         if(!buy_chased && ProfitChasing > 0) {
+    //             if (buys < max_auto_open_positions && buys < MaxOrders) {
+    //                 ticket = OrderSendReliable(Symbol(), OP_BUY, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, Magic1, 0, Blue);
+    //             }
+    //             buy_chased = true;
+    //         }
+    //     }
 
-        // CASE 2.2 >>> Profit locked is updated in real time
-        if(buy_max_profit > 0 && local_total_buy_profit > buy_max_profit) {
-            buy_max_profit = local_total_buy_profit;
-            buy_close_profit = ProfitLock * local_total_buy_profit;
-        }
+    //     // CASE 2.2 >>> Profit locked is updated in real time
+    //     if(buy_max_profit > 0 && local_total_buy_profit > buy_max_profit) {
+    //         buy_max_profit = local_total_buy_profit;
+    //         buy_close_profit = ProfitLock * local_total_buy_profit;
+    //     }
 
-        // CASE 2.3 >>> If profit falls below profit locked we close all orders
-        if(buy_max_profit > 0 && buy_close_profit > 0 && buy_max_profit >= buy_close_profit && local_total_buy_profit < buy_close_profit) {
-            closeAllBuys();
-        }
-    }
+    //     // CASE 2.3 >>> If profit falls below profit locked we close all orders
+    //     if(buy_max_profit > 0 && buy_close_profit > 0 && buy_max_profit >= buy_close_profit && local_total_buy_profit < buy_close_profit) {
+    //         closeAllBuys();
+    //     }
+    // }
 
     // **************************************************
     // SELLS==0
@@ -129,12 +129,98 @@ void Robot()
     // **************************************************
     // SELLS == 1
     // **************************************************
-    if(sells == 1) {}
+    if(sells == 1) {
+        // CASE 1 >>> We reach Stop Loss (grid size)
+        // if(!stop_next_cycle && !rest_and_realize && MaxOrders > 1) {
+        //     if(sell_profit[sells - 1] <= StopLoss(sell_lots[sells - 1], 1)) {
+        //         NewGridOrder(OP_SELL, false);
+        //     }
+        // }
+
+        // // CASE 2.1 >>> We reach Take Profit so we activate profit lock
+        // if(sell_max_profit == 0 && local_total_sell_profit > TakeProfit(sell_lots[0])) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        // }
+
+        // // CASE 2.2 >>> Profit locked is updated in real time
+        // if(sell_max_profit > 0 && local_total_sell_profit > sell_max_profit) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * local_total_sell_profit;
+        // }
+
+        // // CASE 2.3 >>> If profit falls below profit locked we close all orders
+        // if(sell_max_profit > 0 && sell_close_profit > 0 && sell_max_profit >= sell_close_profit && local_total_sell_profit < sell_close_profit) {
+        //     closeAllSells();
+        // }
+    }
 
     // **************************************************
     // SELLS>1
     // **************************************************
-    if(sells > 1) {}
+    if(sells > 1) {
+        // CASE 1 >>> We reach Stop Loss (grid size)
+        // if(sell_profit[sells - 1] <= StopLoss(sell_lots[sells - 1], sells)) {
+        //     if(sells < max_auto_open_positions) {
+        //         if(sells < MaxOrders && !sell_max_order_lot_open) {
+        //             NewGridOrder(OP_SELL, false);
+        //         }
+        //     }
+        // }
+
+        // // CASE 2.1 >>> We reach Take Profit so we activate profit lock
+        // if(sell_max_profit == 0 && Sequence == 0 && local_total_sell_profit > TakeProfit(sell_lots[0])) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        //     if(!sell_chased && ProfitChasing > 0) {
+        //         if(buys < max_auto_open_positions && buys < MaxOrders) {
+        //             ticket = OrderSendReliable(Symbol(), OP_SELL, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, Key + "-" + (string)sells, Magic1, 0, Red);
+        //         }
+        //         sell_chased = true;
+        //     }
+        // }
+        // if(sell_max_profit == 0 && Sequence == 1 && local_total_sell_profit > sells * TakeProfit(sell_lots[0])) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        //     if(!sell_chased && ProfitChasing > 0) {
+        //         if (buys < max_auto_open_positions && buys < MaxOrders) {
+        //             ticket = OrderSendReliable(Symbol(), OP_SELL, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, Key + "-" + (string)sells, Magic1, 0, Red);
+        //         }
+        //         sell_chased = true;
+        //     }
+        // }
+        // if(sell_max_profit == 0 && Sequence == 2 && local_total_sell_profit > TakeProfit(sell_lots[sells - 1])) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        //     if(!sell_chased && ProfitChasing > 0) {
+        //         if(buys < max_auto_open_positions && buys < MaxOrders) {
+        //             ticket = OrderSendReliable(Symbol(), OP_SELL, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, Key + "-" + (string)sells, Magic1, 0, Red);
+        //         }
+        //         sell_chased = true;
+        //     }
+        // }
+        // if(sell_max_profit == 0 && Sequence == 3 && local_total_sell_profit > TakeProfit(sell_lots[sells - 1])) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        //     if(!sell_chased && ProfitChasing > 0) {
+        //         if (buys < max_auto_open_positions && buys < MaxOrders) {
+        //             ticket = OrderSendReliable(Symbol(), OP_SELL, ProfitChasing * InitLot(), MarketInfo(Symbol(), MODE_BID), slippage, 0, 0, Key + "-" + (string)sells, Magic1, 0, Red);
+        //         }
+        //         sell_chased = true;
+        //     }
+        // }
+
+        // // CASE 2.2 >>> Profit locked is updated in real time
+        // if(sell_max_profit > 0 && local_total_sell_profit > sell_max_profit) {
+        //     sell_max_profit = local_total_sell_profit;
+        //     sell_close_profit = ProfitLock * sell_max_profit;
+        // }
+
+        // // CASE 2.3 >>> If profit falls below profit locked we close all orders
+        // if(sell_max_profit > 0 && sell_close_profit > 0 && sell_max_profit >= sell_close_profit && local_total_sell_profit < sell_close_profit) {
+        //     closeAllSells();
+        // }
+    }
 
 
 

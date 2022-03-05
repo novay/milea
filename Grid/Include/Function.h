@@ -187,9 +187,15 @@ double StopLoss(double volume, int positions) {
 
 
 int FiboSequence(int index) {
-   int val1 = 0, val2 = 1, val3 = 0;
-   for(int i = 1; i < index; i++) {
-      val2 += val1;
+   int val1 = 0;
+   int val2 = 1;
+   int val3 = 0;
+
+   for(int i = 1; i < index; i++) { // use this for: 1, 1, 2, 3, 5, 8, 13, 21, ...
+      val3 = val2;
+      val2 = val1 + val2;
+      val1 = val3;
    }
+
    return val2;
 }

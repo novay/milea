@@ -1,23 +1,27 @@
 void OpenPosition(int orderType, int magic, bool isHedge) {
-   int ticket;
-   double next_lot = Lot;
+    int ticket;
+    double next_lot;
 
-   if(rest_and_realize && !isHedge) return;
-   if(orderType == OP_BUY) {
-      if(Sequence == 0) next_lot = Lot;
-      if(Sequence == 1) next_lot = buy_lots[buys - 1] + buy_lots[0];
-      if(Sequence == 2) next_lot = 2 * buy_lots[buys - 1];
-      if(Sequence == 3) next_lot = FiboSequence(buys + 1) * Lot;
+    if(rest_and_realize && !isHedge) return;
+    if(orderType == OP_BUY) {
 
-      ticket = OrderSendReliable(Symbol(), OP_BUY, next_lot, MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, magic, 0, Blue);
-   } else {
-      if(Sequence == 0) next_lot = Lot;
-      if(Sequence == 1) next_lot = sell_lots[sells - 1] + sell_lots[0];
-      if(Sequence == 2) next_lot = 2 * sell_lots[sells - 1];
-      if(Sequence == 3) next_lot = FiboSequence(sells + 1) * Lot;
 
-      ticket = OrderSendReliable(Symbol(), OP_SELL, next_lot, MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, Key + "-" + (string)sells, magic, 0, Red);
-   }
+
+        if(Sequence == 0) next_lot = Lot;
+        if(Sequence == 1) next_lot = buy_lots[buys - 1] + buy_lots[0];
+        if(Sequence == 2) next_lot = 2 * buy_lots[buys - 1];
+        if(Sequence == 3) next_lot = FiboSequence(buys + 1) * Lot;
+
+        Print("Sequence: " + (2 * buy_lots[buys - 1]));
+        ticket = OrderSendReliable(Symbol(), OP_BUY, next_lot, MarketInfo(Symbol(), MODE_ASK), Slippage, 0, 0, Key + "-" + (string)buys, magic, 0, Blue);
+    } else {
+        if(Sequence == 0) next_lot = Lot;
+        if(Sequence == 1) next_lot = sell_lots[sells - 1] + sell_lots[0];
+        if(Sequence == 2) next_lot = 2 * sell_lots[sells - 1];
+        if(Sequence == 3) next_lot = FiboSequence(sells + 1) * Lot;
+
+        ticket = OrderSendReliable(Symbol(), OP_SELL, next_lot, MarketInfo(Symbol(), MODE_BID), Slippage, 0, 0, Key + "-" + (string)sells, magic, 0, Red);
+    }
 }
 
 
