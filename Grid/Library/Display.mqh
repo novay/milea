@@ -130,7 +130,6 @@ bool RemoveObject(const long chart_ID = 0, const string name = "Button")
 
     return(true);
 }
-
 //+------------------------------------------------------------------+
 // End of Button                                                     |
 //+------------------------------------------------------------------+
@@ -142,7 +141,7 @@ void ChartDisplay()
 {
    RectLabelCreate3("INFO_BG", 10, 20, 230, 280, Black);
    
-   PutLabel("INFO_LOGO",       15, 25,  ea_name + " v" + ea_version + " (Marti Edition)", 11, "Arial Bold");
+   PutLabel("INFO_LOGO",       15, 25,  ea_name + " v" + ea_version + " (Grid Edition)", 11, "Arial Bold");
    PutLabel("INFO_EDITION",    13, 44,  " by " + ea_author, 7);
    
    PutLabel("INFO_LINE1",      15, 42,  "___________________________");
@@ -201,16 +200,16 @@ void PutLabel_(string name,
     int size = 11, 
     string font = "Arial")
 {
-    ObjectCreate(0,name,OBJ_LABEL,0,0,0);
-    ObjectSetInteger(0,name,OBJPROP_XDISTANCE,x);
-    ObjectSetInteger(0,name,OBJPROP_YDISTANCE,y);
-    ObjectSetInteger(0,name,OBJPROP_CORNER,CORNER_LEFT_UPPER);
-    ObjectSetString(0,name,OBJPROP_TEXT,text);
-    ObjectSetString(0,name,OBJPROP_FONT,font);
-    ObjectSetInteger(0,name,OBJPROP_FONTSIZE, size);
-    ObjectSetInteger(0,name,OBJPROP_COLOR,DodgerBlue);
-    ObjectSetInteger(0,name,OBJPROP_HIDDEN,false);
-    ObjectSetInteger(0,name,OBJPROP_BACK,false);
+    ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
+    ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
+    ObjectSetInteger(0, name, OBJPROP_YDISTANCE, y);
+    ObjectSetInteger(0, name, OBJPROP_CORNER, CORNER_LEFT_UPPER);
+    ObjectSetString(0, name, OBJPROP_TEXT, text);
+    ObjectSetString(0, name, OBJPROP_FONT, font);
+    ObjectSetInteger(0, name, OBJPROP_FONTSIZE,  size);
+    ObjectSetInteger(0, name, OBJPROP_COLOR, DodgerBlue);
+    ObjectSetInteger(0, name, OBJPROP_HIDDEN, false);
+    ObjectSetInteger(0, name, OBJPROP_BACK, false);
 }
 
 bool RectLabelCreate3(string name, 

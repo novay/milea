@@ -1,12 +1,12 @@
 bool nDrawLines = true, nNextLine = false, nSignal = false, nImpact = false;
 color nLineColor = clrRed;
 int nLineStyle = 2, nUpdate = 86400, nMinBefore = 0, nMinAfter = 0, nNomNews = 0, nNow = 0;
-string nNewsArr[4][1000], nSymbol, nNewsString;
+string nNewsArr[4][1000], nSymbol;
 datetime nLastUpd;
 
 void NewsOnInit() 
 {
-	if(StringLen(nPairs) > 1) nSymbol = nPairs;
+    if(StringLen(nPairs) > 1) nSymbol = nPairs;
     else nSymbol = Symbol();
 
     nImpact = nAvoidNews;

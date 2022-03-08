@@ -557,7 +557,7 @@ void thinOutTheGrid() {
    // TODO lockProfit
    // double buy_close_profit_trail_orders = 0, sell_close_profit_trail_orders = 0;
    // check if MaxOrders is reached:
-   // if(buys >= GridPartiallyClose && !isHedgingSellActive()) {
+   // if(buys >= PartialClose && !isHedgingSellActive()) {
    //    // calculate profit of the first and last buy order
    //    // trail the profit of the last and first buy order
    //    // close the first and the last buy order at trailed profit
@@ -570,7 +570,7 @@ void thinOutTheGrid() {
    //    }
    // }
 
-   // if(sells >= GridPartiallyClose && !isHedgingBuyActive()) {
+   // if(sells >= PartialClose && !isHedgingBuyActive()) {
    //    // calculate profit of the first and last sell order
    //    // trail the profit of the last and first sell order
    //    // close the first and the last sell order at trailed profit

@@ -8,7 +8,6 @@ bool 	booting 			= true; 	// to do some things only one time after program start
 int 	stop_all 			= 0; 		// close all and stop trading or continue with trading
 int 	stop_next_cycle 	= 0;
 int 	rest_and_realize 	= 0;
-string nNewsString;
 
 bool 	buy_chased = false, sell_chased = false;
 
@@ -67,6 +66,9 @@ double market_mode_init 		= MarketInfo(Symbol(), MODE_MARGININIT);
 double market_mode_maintenance 	= MarketInfo(Symbol(), MODE_MARGINMAINTENANCE);
 double market_mode_required 	= MarketInfo(Symbol(), MODE_MARGINREQUIRED);
 
+#ifdef __news__
+	string nNewsString = (string)nAvoidNews;
+#endif
 
 
 
