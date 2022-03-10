@@ -204,7 +204,7 @@ void showLines() {
       // #029: hide forecast lines, if trailing stop is active
       if(show_forecast && line_sell_ts == 0) {
          // #022: show next line_buy/line_sell
-         // line_sell_next=sell_price[sells-1]+CalculateVolume(sells)/min_lots*ter_ticksPerGrid;
+         // line_sell_next=sell_price[sells-1]+LotSize(sells)/min_lots*ter_ticksPerGrid;
          // #045: Fine tuning lines buy/sell next based on profit instead of Distance
          if(gs_progression == 0) line_sell_next = sell_price[sells - 1] + ter_ticksPerGrid;
          else if(gs_progression == 1) line_sell_next = sell_price[sells - 1] + sells * ter_ticksPerGrid;

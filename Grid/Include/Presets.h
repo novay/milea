@@ -42,19 +42,20 @@ extern bool     FullLots         	= true; // Full Lots
 
 #ifdef __news__
 	extern string   NewsFilters     = ""; // ==== NEWS FILTER ====
-	input bool      nAvoidNews      = false; // Avoid News (High Impact)
-	input int       nMinsBeforeNews = 60; // Close Before News (Min)
-	input int       nMinsAfterNews  = 60; // Open After News (Min)
-	input int       nTimeZone       = 8; // Time Zone, GMT (for news)
-	input string    nPairs          = "USD,EUR"; // Affected Pairs (empty to current pairs) 
+	extern bool     nAvoidNews      = false; // Avoid News (High Impact)
+	extern int      nMinsBeforeNews = 60; // Close Before News (Min)
+	extern int      nMinsAfterNews  = 60; // Open After News (Min)
+	extern int      nTimeZone       = 8; // Time Zone, GMT (for news)
+	extern string   nPairs          = "USD,EUR"; // Affected Pairs (empty to current pairs) 
 #endif
 
 #ifdef __protection__
 	extern string   ProtectSettings = ""; // ==== PROTECTION SETTINGS ====
-	extern int 		MaxOrders      	= 0; // Max Position (Layers)
-	extern int 		ProfitChasing   = 0; // Number of Lots for chasing profit
-	extern double 	ProfitLock     	= 0.80;     // Profit Lock
 	extern bool     TotalLoss       = false; // Use Total Loss
 	extern double   AccountLock     = 100000000.0; // Maximal Loss Allowed (USD)
+	extern double   PairsLoss     	= 0; // Cutloss Per Pairs (%)
+	extern int 		MaxOrders      	= 15; // Max Position (Layers)
 	extern int     	PartialClose 	= 0; // Close Partials (Last & First)
+	extern int 		ProfitChasing   = 0; // Number of Lots for chasing profit
+	extern double 	ProfitLock     	= 0.80;     // Profit Lock
 #endif

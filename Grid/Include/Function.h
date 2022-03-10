@@ -1,20 +1,38 @@
-void IsBooting(bool var) {
-    if(var) {
-        if(AccountCurrency() == "USD") market_symbol = "$";
-        if(MarketInfo(Symbol(), MODE_DIGITS) == 4 || MarketInfo(Symbol(), MODE_DIGITS) == 2) {
-            Slippage = MaxSlippage;
-            market_multiplier = 1;
-        } else if(MarketInfo(Symbol(), MODE_DIGITS) == 5 || MarketInfo(Symbol(), MODE_DIGITS) == 3) {
-            market_multiplier = 10;
-            Slippage = market_multiplier * MaxSlippage;
-        }
-        
-        // Print("New program start at " + TimeToStr(TimeCurrent()));
-        booting = false;
-    }
+//+------------------------------------------------------------------+
+//| ReadPrevSession()
+//| -----------------------------------------------------------------+
+//| Deal with global vars to save and restore data, while chart is 
+//| closed or must be restarted by other reason
+//+------------------------------------------------------------------+
+void ReadPrevSession() 
+{
+   if(!IsTesting()) {
+      int count = GlobalVariablesTotal();
+      if(count > 0) {
+         // // #044: Add button to show or hide comment
+         // if(GlobalVariableCheck(globalVarsID + "showComment"))
+         //    showComment = (int)GlobalVariableGet(globalVarsID + "showComment");
+
+         // // #011 #018 #019: implement button: Stop On Next Cycle
+         // if(GlobalVariableCheck(globalVarsID + "stop_next_cycle"))
+         //    stop_next_cycle = (int)GlobalVariableGet(globalVarsID + "stop_next_cycle");
+
+         // if(GlobalVariableCheck(globalVarsID + "rest_and_realize"))
+         //    rest_and_realize = (int)GlobalVariableGet(globalVarsID + "rest_and_realize");
+
+         // // #010: implement button: Stop & Close
+         // if(GlobalVariableCheck(globalVarsID + "stopAll"))
+         //    stopAll = (int)GlobalVariableGet(globalVarsID + "stopAll");
+      }
+   }
 }
 
-bool TradeTime() {
+//**************************************************
+// Time filters functions - 
+// Checking if trade time is on or no
+//**************************************************
+bool TradeTime() 
+{
     if(TimeFilter == true) {
         int jam = TimeHour(TimeCurrent());
         if(StartHour > jam && jam < EndHour) {
@@ -26,90 +44,76 @@ bool TradeTime() {
     return true;
 }
 
-//+------------------------------------------------------------------+
-//| CalculateVolume                                                                 |
-//+------------------------------------------------------------------+
-double calculateVolume(int positions) {
+//**************************************************
+// Calculating lot size - 
+// Based on used progression
+//**************************************************
+double LotSize(int positions) 
+{
    int factor = 0;
    int i = 0;
 
    if(positions == 0) return(Lot);
 
    switch(Sequence) {
-   case 0:
-      factor = 1;
+      case 0:
+         factor = 1;
       break;
-   case 1:
-      factor = positions;
+      case 1:
+         factor = positions;
       break;
-   case 2:
-      for(i = 1, factor = 1; i < positions; i++)
-         factor = factor * 2;
+      case 2:
+         for(i = 1, factor = 1; i < positions; i++)
+            factor = factor * 2;
       break;
-   case 3:
-      factor = FiboSequence(positions);
+      case 3:
+         factor = Fibonacci(positions);
       break;
    }
 
    return(factor * Lot);
 }
 
-//+------------------------------------------------------------------+
-//| CalculateNextVolume                                                                 |
-//+------------------------------------------------------------------+
-double CalculateNextVolume(int orderType) {
+//**************************************************
+// Calculating next lot size - 
+// Based on used progression
+//**************************************************
+double NextLotSize(int orderType) 
+{
    if(orderType == OP_BUY && buys == 0) return(Lot);
    if(orderType == OP_SELL && sells == 0)  return(Lot);
 
-   // next volume must be calulated by actual positions + 1
    switch(Sequence) {
-   case 0:
-      return(Lot);
+      case 0:
+         return(Lot);
       break;
-   case 1:
-      if(orderType == OP_BUY) {
-         return(buy_lots[buys - 1] + buy_lots[0]);
-      } else {
-         return(sell_lots[sells - 1] + sell_lots[0]);
-      }
+      case 1:
+         if(orderType == OP_BUY) 
+            return(buy_lots[buys - 1] + buy_lots[0]);
+         else 
+            return(sell_lots[sells - 1] + sell_lots[0]);
       break;
-   case 2:
-      if(orderType == OP_BUY) {
-         return(2 * buy_lots[buys - 1]);
-      } else {
-         return(2 * sell_lots[sells - 1]);
-      }
+      case 2:
+         if(orderType == OP_BUY) 
+            return(2 * buy_lots[buys - 1]);
+         else 
+            return(2 * sell_lots[sells - 1]);
       break;
-   case 3:
-      if(orderType == OP_BUY) {
-         return(FiboSequence(buys + 1) * buy_lots[0]);
-      } else {
-         return(FiboSequence(sells + 1) * sell_lots[0]);
-      }
+      case 3:
+         if(orderType == OP_BUY)
+            return(Fibonacci(buys + 1) * buy_lots[0]);
+         else
+            return(Fibonacci(sells + 1) * sell_lots[0]);
       break;
    }
 
    return(Lot);
 }
 
-//+------------------------------------------------------------------+
-//| CalculateMargin                                                  |
-//+------------------------------------------------------------------+
-double CalculateNextMargin() {
-   double leverage = 100 / AccountLeverage();
-
-   if(buys + sells == 0)
-      return(Lot * leverage * market_mode_required);
-   if(buys > sells) {
-      return(CalculateNextVolume(OP_BUY) * leverage  * market_mode_required);
-   } else {
-      return(CalculateNextVolume(OP_SELL) * leverage * market_mode_required);
-   }
-}
-
-//+------------------------------------------------------------------+
-//| CALCULATE STARTING VOLUME                                        |
-//+------------------------------------------------------------------+
+//**************************************************
+// Calculating starting lot size - 
+// Based on Initial lots from properties
+//**************************************************
 double InitLot() {
    double volume = Lot;
 
@@ -135,30 +139,6 @@ double CalculatePriceByTickDiff(double volume, double diff) {
 }
 
 // ------------------------------------------------------------------------------------------------
-// CALCULATE PIP VALUE
-// ------------------------------------------------------------------------------------------------
-double PipValue(double volume) {
-   double aux_mm_value = 0;
-
-   double aux_mm_tick_value = market_tick_value;
-   double aux_mm_tick_size = market_tick_size;
-   int aux_mm_digits = market_digits;
-   double aux_mm_veces_lots;
-
-   if(volume != 0) {
-      aux_mm_veces_lots = 1 / volume;
-      if(aux_mm_digits == 5 || aux_mm_digits == 3) {
-         aux_mm_value = aux_mm_tick_value * 10;
-      } else if(aux_mm_digits == 4 || aux_mm_digits == 2) {
-         aux_mm_value = aux_mm_tick_value;
-      }
-      aux_mm_value = aux_mm_value / aux_mm_veces_lots;
-   }
-
-   return(aux_mm_value);
-}
-
-// ------------------------------------------------------------------------------------------------
 // CALCULATE TAKE PROFIT
 // ------------------------------------------------------------------------------------------------
 double TakeProfit(double volume) {
@@ -172,12 +152,13 @@ double TakeProfit(double volume) {
 // ------------------------------------------------------------------------------------------------
 // CALCULATE STOP LOSS
 // ------------------------------------------------------------------------------------------------
-double StopLoss(double volume, int positions) {
+double StopLoss(double volume, int positions) 
+{
    // volume = volume of last position only
    double aux_stop_loss;
 
    // #008: use Sequence for grid size as well as volume
-   double myVal = calculateVolume(positions) / Lot;
+   double myVal = LotSize(positions) / Lot;
 
    aux_stop_loss = - (myVal * Distance * PipValue(volume));
 
@@ -185,17 +166,55 @@ double StopLoss(double volume, int positions) {
    return(aux_stop_loss);
 }
 
-
-int FiboSequence(int index) {
-   int val1 = 0;
-   int val2 = 1;
-   int val3 = 0;
-
-   for(int i = 1; i < index; i++) { // use this for: 1, 1, 2, 3, 5, 8, 13, 21, ...
+//**************************************************
+// Fibonacci Sequence (1, 2, 3, 5, 8, ...)
+//**************************************************
+int Fibonacci(int index) 
+{
+   int val1 = 0, val2 = 1, val3 = 0;
+   for(int i = 1; i < index; i++) {
       val3 = val2;
       val2 = val1 + val2;
       val1 = val3;
    }
 
    return val2;
+}
+
+//**************************************************
+// Calculate Grid Distance
+//**************************************************
+double DistanceGrid(double volume, int positions) 
+{
+   double grid_space;
+   double grid_volume = LotSize(positions) / Lot;
+
+   grid_space = - (grid_volume * Distance * PipValue(volume));
+   return(grid_space);
+}
+
+//**************************************************
+// Calculating Pips Value
+//**************************************************
+double PipValue(double volume) 
+{
+   double   pip_value   = 0;
+   double   pip_tick    = market_tick_value;
+   double   pip_size    = market_tick_size;
+   double   pip_lots;
+   int      pip_digits  = market_digits;
+
+   if(volume != 0) {
+      pip_lots = 1 / volume;
+
+      if(pip_digits == 5 || pip_digits == 3) {
+         pip_value = pip_tick * 10;
+      } else if(pip_digits == 4 || pip_digits == 2) {
+         pip_value = pip_tick;
+      }
+
+      pip_value = pip_value / pip_lots;
+   }
+
+   return(pip_value);
 }

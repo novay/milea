@@ -1,54 +1,75 @@
-sinput string Indicators_Settings;        //*****    Settings of indicators   *****
-extern bool Conjunct_Idx = true;         //All selected indicators will be applied together
+//**************************************************
+// Indicators settings presets
+//**************************************************
+sinput string  Indicators_Settings;             // >>> Settings of indicators <<<
+extern bool    ApplyIndicators         = true;  // Apply All Indicators
 
+//**************************************************
+// Including each indicators functions
+//**************************************************
 #include "ATR/ATR.h"
 #include "BB/BB.h"
 #include "RSI/RSI.h"
 #include "Stochastic/Stochastic.h"
 
-bool Indicators_Buy() {
-   bool BB_ret, STO_ret, RSI_ret;
-   if (Conjunct_Idx) {
-      BB_ret = true;
-      STO_ret = true;
-      RSI_ret = true;
-      if (Use_BB) BB_ret = BB_Buy();
-      if (Use_Stoch) STO_ret = STO_Buy();
-      if (Use_RSI) RSI_ret = RSI_Buy();
-      if (BB_ret && STO_ret && RSI_ret) return (true);
+//**************************************************
+// Order buy using confirmed  indicators
+//**************************************************
+bool BuyUsingIndicators() {
+   bool bb_return, sto_return, rsi_return;
+   if (ApplyIndicators) {
+      bb_return = true;
+      sto_return = true;
+      rsi_return = true;
+      if (UseBB) bb_return = BBBuy();
+      if (UseSTO) sto_return = STOBuy();
+      if (UseRSI) rsi_return = RSIBuy();
+      if (bb_return && sto_return && rsi_return) return (true);
+
       return(false);
    } else {
-      if (Use_BB) BB_ret = BB_Buy();
-      else BB_ret = false;
-      if (Use_Stoch) STO_ret = STO_Buy();
-      else STO_ret = false;
-      if (Use_RSI) RSI_ret = RSI_Buy();
-      else RSI_ret = false;
-      if (BB_ret || STO_ret || RSI_ret) return (true);
+      if (UseBB) bb_return = BBBuy();
+      else bb_return = false;
+
+      if (UseSTO) sto_return = STOBuy();
+      else sto_return = false;
+
+      if (UseRSI) rsi_return = RSIBuy();
+      else rsi_return = false;
+
+      if (bb_return || sto_return || rsi_return) return (true);
       return(false);
    }
    return (false);
 }
 
-bool Indicators_Sell() {
-   bool BB_ret, STO_ret, RSI_ret;
-   if (Conjunct_Idx) {
-      BB_ret = true;
-      STO_ret = true;
-      RSI_ret = true;
-      if (Use_BB) BB_ret = BB_Sell();
-      if (Use_Stoch) STO_ret = STO_Sell();
-      if (Use_RSI) RSI_ret = RSI_Sell();
-      if (BB_ret && STO_ret && RSI_ret) return (true);
+//**************************************************
+// Order sell using confirmed  indicators
+//**************************************************
+bool SellUsingIndicators() {
+   bool bb_return, sto_return, rsi_return;
+   
+   if (ApplyIndicators) {
+      bb_return = true;
+      sto_return = true;
+      rsi_return = true;
+      if (UseBB) bb_return = BBSell();
+      if (UseSTO) sto_return = STOSell();
+      if (UseRSI) rsi_return = RSISell();
+      if (bb_return && sto_return && rsi_return) return (true);
+
       return(false);
    } else  {
-      if (Use_BB) BB_ret = BB_Sell();
-      else BB_ret = false;
-      if (Use_Stoch) STO_ret = STO_Sell();
-      else STO_ret = false;
-      if (Use_RSI) RSI_ret = RSI_Sell();
-      else RSI_ret = false;
-      if (BB_ret || STO_ret || RSI_ret) return (true);
+      if (UseBB) bb_return = BBSell();
+      else bb_return = false;
+
+      if (UseSTO) sto_return = STOSell();
+      else sto_return = false;
+      
+      if (UseRSI) rsi_return = RSISell();
+      else rsi_return = false;
+      
+      if (bb_return || sto_return || rsi_return) return (true);
       return(false);
    }
    return (false);

@@ -1,8 +1,8 @@
-bool nDrawLines = true, nNextLine = false, nSignal = false, nImpact = false;
-color nLineColor = clrRed;
-int nLineStyle = 2, nUpdate = 86400, nMinBefore = 0, nMinAfter = 0, nNomNews = 0, nNow = 0;
-string nNewsArr[4][1000], nSymbol;
-datetime nLastUpd;
+bool        nDrawLines = true, nNextLine = false, nSignal = false, nImpact = false;
+color       nLineColor = clrRed;
+int         nLineStyle = 2, nUpdate = 86400, nMinBefore = 0, nMinAfter = 0, nNomNews = 0, nNow = 0;
+string      nNewsArr[4][1000], nSymbol;
+datetime    nLastUpd;
 
 void NewsOnInit() 
 {
@@ -29,7 +29,6 @@ void NewsOnTick()
         }
         
         WindowRedraw();
-        //---- Draw a line on the chart news ----
         if(nDrawLines) { 
             for(int i=0; i<nNomNews; i++) {
                 string Name = StringSubstr(TimeToStr(NewsTimeFunc(i), TIME_MINUTES)+"_"+nNewsArr[1][i]+"_"+nNewsArr[3][i], 0, 63);
@@ -49,7 +48,6 @@ void NewsOnTick()
             }
         }
         
-        //---- Event Processing ----
         int i;
         CheckNews = 0;
         for(i=0; i<nNomNews; i++) {
@@ -96,23 +94,18 @@ string ReadCBOE()
     string news_url = "https://ec.forexprostools.com/?columns=exc_currency,exc_importance&importance=3&calType=week&timeZone="+(string)nTimeZone+"&lang=1";
     ResetLastError();
     
-    //--- download html-pages
     int timeout = 5000;
     res = WebRequest("GET", news_url, cookie, NULL, timeout, post, 0, result, headers);
     
-    //--- error checking
     if(res == -1) {
         Print("WebRequest error, err.code  =", GetLastError());
         MessageBox("You must add the address ' "+news_url+"' in the list of allowed URL tab 'Advisors' ", " Error ", MB_ICONINFORMATION);
     } else {
-        //--- successful download
         PrintFormat("File successfully downloaded, the file size in bytes  =%d.",ArraySize(result)); 
-        //--- save the data in the file
+
         int filehandle = FileOpen("news-log.html", FILE_WRITE|FILE_BIN);
         if(filehandle != INVALID_HANDLE) {
-            //---save the contents of the array result [] in file 
             FileWriteArray(filehandle, result, 0, ArraySize(result));
-            //--- close file 
             FileClose(filehandle);
 
             int filehandle2 = FileOpen("news-log.html", FILE_READ|FILE_BIN);
@@ -141,7 +134,7 @@ void NewsUpdate()
     int sh2 = StringFind(response, "</tbody>");
     response = StringSubstr(response, sh, sh2-sh);
 
-    sh=0;
+    sh = 0;
     while(!IsStopped()) {
         sh = StringFind(response, "event_timestamp", sh)+17;
         sh2 = StringFind(response, "onclick", sh)-2;
