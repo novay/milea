@@ -14,7 +14,7 @@ void NewGridOrder(int orderType, int magic, double sl = 0, double tp = 0, double
       if(magic == Magic1 && next_lot >= MaxLot1) next_lot = MaxLot1;
       if(magic == Magic2 && next_lot >= MaxLot2) next_lot = MaxLot2;
 
-      ticket = OrderSendReliable(Symbol(), OP_BUY, next_lot, MarketInfo(Symbol(), MODE_ASK), Slippage, sl, tp, Key, magic, 0, Blue);
+      ticket = OrderSendReliable(Symbol(), OP_BUY, next_lot, MarketInfo(Symbol(), MODE_ASK), Slippage, NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits), Key, magic, 0, Blue);
    } else {
       if(Sequence == 0) next_lot = Lot;
       if(Sequence == 1) next_lot = sell_lots[sells - 1] + sell_lots[0];
@@ -25,7 +25,7 @@ void NewGridOrder(int orderType, int magic, double sl = 0, double tp = 0, double
       if(magic == Magic1 && next_lot >= MaxLot1) next_lot = MaxLot1;
       if(magic == Magic2 && next_lot >= MaxLot2) next_lot = MaxLot2;
 
-      ticket = OrderSendReliable(Symbol(), OP_SELL, next_lot, MarketInfo(Symbol(), MODE_BID), Slippage, sl, tp, Key, magic, 0, Red);
+      ticket = OrderSendReliable(Symbol(), OP_SELL, next_lot, MarketInfo(Symbol(), MODE_BID), Slippage, NormalizeDouble(sl, Digits), NormalizeDouble(tp, Digits), Key, magic, 0, Red);
    }
 }
 
@@ -42,7 +42,7 @@ void CloseAll() {
 //**************************************************
 void CloseAllSells() {
    if(sells > 0) {
-      CloseAllHedgeBuys();
+      // CloseAllHedgeBuys();
       for(int i = 0; i <= sells - 1; i++) {
          bool retVal = OrderCloseReliable(sell_tickets[i], sell_lots[i], MarketInfo(Symbol(), MODE_ASK), Slippage, Red);
       }
@@ -54,7 +54,7 @@ void CloseAllSells() {
 //**************************************************
 void CloseAllBuys() {
    if(buys > 0) {
-      CloseAllHedgeSells();
+      // CloseAllHedgeSells();
       for(int i = 0; i <= buys - 1; i++) {
          bool retVal = OrderCloseReliable(buy_tickets[i], buy_lots[i], MarketInfo(Symbol(), MODE_BID), Slippage, Blue);
       }

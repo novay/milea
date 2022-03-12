@@ -4,8 +4,8 @@
 void ResetVars() {
     buys = 0;
     sells = 0;
-    hedge_buys = buys;
-    hedge_buys = sells;
+    hedge_buys = 0;
+    hedge_sells = 0;
 
     is_buy_hedging_active = false;
     is_sell_hedging_active = false;

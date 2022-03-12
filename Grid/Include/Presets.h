@@ -4,7 +4,7 @@ extern double   Lot             	= 0.01; // Initial Lot Size
 extern double   TargetEquity    	= 100000000.0; // Target Equity (USD) 
 extern double   DailyTarget     	= 0; // Daily Target (USD). 0 to Ignore
 extern double   Spread          	= 10.0; // Max Spread
-extern double   MaxSlippage 	  	= 2.0; // Slippage
+extern double   MaxSlippage 	  	= 2.0; // Tolerance Slippage
 
 extern string   Engine1         	= "==== MAIN STRATEGY ===="; // >>> MAIN ATTACK
 enum ENUM_SEQUENCE {
@@ -20,11 +20,10 @@ extern double   Distance         	= 40; // Grid Distance
 extern double   TakeProfitPips   	= 17; // Take Profit (Pips)
 extern double   TakeProfit       	= 5; // Take Profit (USD)
 extern double   MaxLot1          	= 1.44; // Maximum Lot Size. 0 to Ignore
-extern int 		MaxOrders      		= 6; // Max Position (Layers). 0 to Ignore
+extern int 		MaxOrders      		= 11; // Max Position (Layers). 0 to Ignore
 extern int      Magic1           	= 555571; // Magic Number (Engine 1)
 
 extern string   Engine2          	= "==== PYRAMID (REVERSE MARTI) ===="; // >>> DEFENCE 1
-extern bool     EnablePyramid    	= false; // Enable Anti Marti
 extern int      HedgeLevel       	= 11; // Start Hedge Level
 extern int      TrailSL          	= 35; // Trailing SL (Pips)
 extern int      StopLoss         	= 40; // Stop Loss (Pips)
@@ -55,8 +54,9 @@ extern bool     FullLots         	= true; // Full Lots
 	extern string   ProtectSettings = ""; // ==== PROTECTION SETTINGS ====
 	extern bool     TotalLoss       = false; // Use Total Loss
 	extern double   AccountLock     = 100000000.0; // Maximal Loss Allowed (USD)
-	extern double   PairsLoss     	= 0; // Cutloss Per Pairs (%)
-	extern double   LevelRisk     	= 0; // BEP Trigger (Layers). Close on +1$
+	extern double   PairsLoss     	= 0; // Cutloss on Loss per Pairs (USD)
+	extern double   LevelRisk     	= 0; // BEP Trigger (Layers). Close on >=1$
+	// extern bool  NewCandle     	= true; // Open on New Candle
 	
 	extern int     	PartialClose 	= 0; // Close Partials (Last & First)
 	extern bool 	HiddenTP     	= false; // Hidden Take Profit

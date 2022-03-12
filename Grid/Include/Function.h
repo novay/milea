@@ -42,6 +42,21 @@ bool TradeTime() {
 }
 
 //**************************************************
+// Open on New Candle - 
+// returns if new bar has started
+//**************************************************
+bool IsNewCandle()
+{
+   static datetime time = Time[0];
+   if(Time[0] > time)
+   {
+      time = Time[0];
+      return (true);
+   } 
+   return(false);
+}
+
+//**************************************************
 // Calculating lot size - 
 // Based on used progression
 //**************************************************
