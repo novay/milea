@@ -1,5 +1,7 @@
-void ResetVars() 
-{
+//**************************************************
+// Reset all variables before update with new one
+//**************************************************
+void ResetVars() {
     buys = 0;
     sells = 0;
     hedge_buys = buys;
@@ -7,10 +9,6 @@ void ResetVars()
 
     is_buy_hedging_active = false;
     is_sell_hedging_active = false;
-    is_buy_hedging_order_active = false;
-    is_sell_hedging_order_active = false;
-    buy_max_order_lot_open = false;
-    sell_max_order_lot_open = false;
 
     for(int i = 0; i < max_open_positions; i++) {
         buy_tickets[i] = 0;
@@ -57,9 +55,6 @@ void UpdateVars()
                 if(OrderMagicNumber() == Magic1 && OrderType() == OP_BUY) {
                     buy_tickets[aux_buys] = OrderTicket();
                     buy_lots[aux_buys] = OrderLots();
-                    if(buy_lots[aux_buys] == max_lot) {
-                        buy_max_order_lot_open = true;
-                    }
 
                     buy_profit[aux_buys] = OrderProfit() + OrderCommission() + OrderSwap();
                     buy_price[aux_buys] = OrderOpenPrice();
@@ -92,9 +87,6 @@ void UpdateVars()
                 if(OrderMagicNumber() == Magic1 && OrderType() == OP_SELL) {
                     sell_tickets[aux_sells] = OrderTicket();
                     sell_lots[aux_sells] = OrderLots();
-                    if(sell_lots[aux_sells] == max_lot) {
-                        sell_max_order_lot_open = true;
-                    }
 
                     sell_profit[aux_sells] = OrderProfit() + OrderCommission() + OrderSwap();
                     sell_price[aux_sells] = OrderOpenPrice();
@@ -141,10 +133,10 @@ void UpdateVars()
     total_hedge_sell_lots       = aux_hedge_total_sell_lots;
 
     if(total_hedge_buy_lots > 0) 
-        is_buy_hedging_order_active = true;
+        is_buy_hedging_active = true;
     
     if(total_hedge_sell_lots > 0) 
-        is_sell_hedging_order_active = true;
+        is_sell_hedging_active = true;
 
     total_buy_swap              = aux_total_buy_swap;
     total_sell_swap             = aux_total_sell_swap;

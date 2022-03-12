@@ -12,6 +12,8 @@ extern bool    ApplyIndicators         = true;  // Apply All Indicators
 #include "RSI/RSI.h"
 #include "Stochastic/Stochastic.h"
 
+#include "ZigZag/ZigZag.h"
+
 //**************************************************
 // Order buy using confirmed  indicators
 //**************************************************

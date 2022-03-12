@@ -58,19 +58,19 @@ void ToolTips_Text(const string action)
 
 int xAll_Button(const string action)
 {
-    CloseAllOrders();
+    CloseAll();
     return(0);
 }
 
 int xBuy_Button(const string action)
 {
-    CloseAllBuyOrders();
+    CloseAllBuys();
     return(0);
 }
 
 int xSell_Button(const string action)
 {
-    CloseAllSellOrders();
+    CloseAllSells();
     return(0);
 }
 

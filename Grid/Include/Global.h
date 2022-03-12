@@ -31,40 +31,41 @@ double 	hedge_buy_profit[max_open_positions], hedge_sell_profit[max_open_positio
 double 	buy_price[max_open_positions], sell_price[max_open_positions];
 double 	hedge_buy_price[max_open_positions], hedge_sell_price[max_open_positions];
 
-// Hedging Indicators =====
+// Hedging Status =====
 bool 	is_sell_hedging_active = false, is_buy_hedging_active = false;
-bool 	is_sell_hedging_order_active = false, is_buy_hedging_order_active = false;
 
 // Profit/Loss Information =====
 double 	total_buy_profit = 0, total_sell_profit = 0;
+double  total_hedge_buy_profit = 0, total_hedge_sell_profit = 0;
 double 	total_buy_swap = 0, total_sell_swap = 0;
+double  total_hedge_buy_swap = 0, total_hedge_sell_swap = 0;
 double 	total_buy_commission = 0, total_sell_commission = 0;
-double 	total_hedge_buy_profit = 0, total_hedge_sell_profit = 0;
-double 	total_hedge_buy_swap = 0, total_hedge_sell_swap = 0;
 double 	total_hedge_buy_commission = 0, total_hedge_sell_commission = 0;
 double 	total_swap = 0, total_commission = 0;
 
-// Protection Settings =====
-bool 	buy_max_order_lot_open = false, sell_max_order_lot_open = false;
-
 // Market Information =====
-int 		market_digits 		= 0;
+int         market_digits 		= 0;
 double 		market_price_buy 	= 0;
 double 		market_price_sell	= 0;
 double 		market_point 		= 0;
-double 		market_tick_value 	= 0;
+double      market_tick_value   = 0;
 double 		market_tick_size 	= 0;
 double 		market_spread 		= 0;
 datetime 	market_time 		= 0;
-double 		market_ticks_grid 	= 0;
-int 		market_multiplier 	= 1;
-string 		market_symbol 		= "$";
+double      market_ticks_grid   = 0;
+int         market_multiplier   = 1;
+string      market_symbol       = "$";
 
-double market_mode_hedged 		= MarketInfo(Symbol(), MODE_MARGINHEDGED);
-double market_mode_init 		= MarketInfo(Symbol(), MODE_MARGININIT);
-double market_mode_maintenance 	= MarketInfo(Symbol(), MODE_MARGINMAINTENANCE);
-double market_mode_required 	= MarketInfo(Symbol(), MODE_MARGINREQUIRED);
+double market_mode_hedged       = MarketInfo(Symbol(), MODE_MARGINHEDGED);
+double market_mode_init         = MarketInfo(Symbol(), MODE_MARGININIT);
+double market_mode_maintenance  = MarketInfo(Symbol(), MODE_MARGINMAINTENANCE);
+double market_mode_required     = MarketInfo(Symbol(), MODE_MARGINREQUIRED);
 
 #ifdef __news__
 	string nNewsString = (string)nAvoidNews;
 #endif
+
+enum enObjectOperation {
+   LODraw = 0,
+   LODelete = 1
+};

@@ -30,7 +30,7 @@
 #endif
 
 #ifdef __button__
-    #include "Library/Button.mqh"
+    // #include "Library/Button.mqh"
 #endif
 
 #ifdef __forecast__
@@ -42,15 +42,15 @@
 //+------------------------------------------------------------------+
 
 int OnInit() {
-    if(Digits == 5 || Digits == 3) pips = Point*10;
-    else pips = Point;
+    // if(Digits == 5 || Digits == 3) pips = Point*10;
+    // else pips = Point;
 
     #ifdef __display__ 
         DisplayOnInit(); 
     #endif
 
     #ifdef __button__ 
-        LoadButton();
+        // LoadButton();
     #endif
 
     #ifdef __news__ 
@@ -98,9 +98,8 @@ void OnTick() {
     market_tick_size  = MarketInfo(Symbol(), MODE_TICKSIZE);
     market_point      = MarketInfo(Symbol(), MODE_POINT);
 
-    if(Slippage > MaxSlippage) {
-        market_point = market_point * 10;
-    }
+    if (Slippage > MaxSlippage) market_point = market_point * 10;
+    // if (Digits % 2 == 1) market_point *= 10;
 
     market_time = TimeCurrent();
     market_ticks_grid = - CalculateTicksByPrice(Lot, StopLoss(Lot, 1)) - market_spread * market_tick_size;
@@ -144,6 +143,236 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 }
 
 #include "Trade/Order.mqh"
-#include "Trade/Lot.mqh"
 #include "Trade/Count.mqh"
-#include "Robot.mqh"
+// #include "Robot.mqh"
+
+// **************************************************
+// Logic Robot
+// **************************************************
+void Robot() 
+{
+    int ticket = - 1;
+
+    double local_total_buy_profit = total_buy_profit;
+    double local_total_sell_profit = total_sell_profit;
+
+    if(hedge_buys > 0) {
+        local_total_sell_profit = total_sell_profit + total_hedge_buy_profit;
+    }
+
+    if(hedge_sells > 0) {
+        local_total_buy_profit = total_buy_profit + total_hedge_sell_profit;
+    }
+
+    InitFunction();
+    OrderLogic(ticket);
+}
+
+// **************************************************
+// Inisiasi Fungsi
+// **************************************************
+void InitFunction() 
+{
+    //**************************************************
+    // Close all if "Daily Target (USD)" reached
+    //**************************************************
+    if(DailyTarget > 0 && ProfitToday(-1)+total_sell_profit+total_hedge_sell_profit+total_buy_profit+total_hedge_sell_profit >= DailyTarget) {
+        run = false;
+        CloseAll();
+
+        if(!IsTesting()) Alert("Capai Target Harian! Istirahat Dulu!");
+        return;
+    } else {
+        run = true;
+    }
+
+    //**************************************************
+    // Close all if "Target Equity (USD)" reached
+    //**************************************************
+    if(TargetEquity > 0 && AccountEquity() >= TargetEquity) {
+        run = false;
+        CloseAll();
+
+        if(!IsTesting()) Alert("Capai Target! WD, jangan lupa sedekah!");
+        return;
+    } else {
+        run = true;
+    }
+
+    // **************************************************
+    // Close all posisi bila sesuai "Time Settings"
+    // **************************************************
+    if(!TradeTime()) {
+        run = false;
+        CloseAll();
+
+        if(!IsTesting()) Print("Sudah waktunya istirahat, jangan GREEDY!");
+        return;
+    } else {
+        run = true;
+    }
+    
+    // **************************************************
+    // Batasi floating, jika menyentuh tutup semua posisi
+    // **************************************************
+    if(AccountProfit() <= -AccountLock) {
+        run = false;
+        ExpertRemove();
+
+        return;
+    }
+}
+
+// **************************************************
+// Order Logic "BUY & SELL"
+// **************************************************
+void OrderLogic(int ticket) 
+{
+    double buy_tp = 0, sell_tp = 0;
+
+    if(run && ((TimeFilter && TradeTime()) || TimeFilter == false) && (market_spread/10 <= Spread)) 
+    {    
+        BuyLogic();
+        SellLogic();
+
+        if(total_buy_profit >= TakeProfit) CloseAllBuys();
+        if(total_sell_profit >= TakeProfit) CloseAllSells();
+
+        if(LevelRisk > 0 && buys == LevelRisk || sells == LevelRisk) {
+            if(total_buy_profit >= TakeProfit) CloseAllBuys();
+            if(total_sell_profit >= TakeProfit) CloseAllSells();
+        }
+    }
+}
+
+// **************************************************
+// "BUY" Logic
+// **************************************************
+void BuyLogic() 
+{
+    //**************************************************
+    // BUYS == 0 - First Buy
+    //**************************************************
+    if(buys == 0) {
+        if(!stop_next_cycle && !rest_and_realize) {
+            if(!HiddenTP) {
+                buy_tp = market_price_buy+(TakeProfitPips*market_point);
+            }
+            
+            NewGridOrder(OP_BUY, Magic1, 0, buy_tp, InitLot());
+        }
+    } else {
+        if(HiddenTP) {
+            if((total_buy_profit+total_hedge_sell_profit >= TakeProfit || (total_buy_profit+total_hedge_sell_profit)/(total_buy_lots+total_hedge_sell_lots)*market_point >= TakeProfitPips*market_point)) {
+                CloseAllBuys();
+            }
+        }
+    }
+
+    // **************************************************
+    // BUYS == 1
+    // **************************************************
+    if(buys == 1) {
+        if(!stop_next_cycle && !rest_and_realize && MaxOrders > 0) {
+            if(Ask <= buy_price[buys-1]-Distance*market_point) {
+                NewGridOrder(OP_BUY, Magic1, false);
+            }
+        }
+    }
+
+    // **************************************************
+    // BUYS > 1
+    // **************************************************
+    if(buys > 1) {
+        if(!stop_next_cycle && !rest_and_realize) {
+            if(buys < MaxOrders) {
+                if(Ask <= buy_price[buys-1]-Distance*market_point) {
+                    if(!EnablePyramid) {
+                        NewGridOrder(OP_BUY, Magic1);
+                    } else {
+                        if(sells < HedgeLevel) {
+                            NewGridOrder(OP_BUY, Magic1);
+                        } else if(sells == HedgeLevel) {
+                            NewGridOrder(OP_BUY, Magic1);
+                            
+                            is_buy_hedging_active = true;
+                            NewGridOrder(OP_SELL, Magic2, StopLoss, 0, sell_lots[sells-1]);
+                        } else if(sells > HedgeLevel) {
+                            if(!Reload) {
+                                NewGridOrder(OP_SELL, Magic2, StopLoss, 0, total_sell_lots);
+                            } else {
+                                NewGridOrder(OP_SELL, Magic2, StopLoss, 0, sell_lots[sells-1]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// **************************************************
+// "SELL" Logic
+// **************************************************
+void SellLogic() 
+{
+    //**************************************************
+    // SELLS == 0 - First Sell
+    //**************************************************
+    if(sells == 0) {
+        if(!stop_next_cycle && !rest_and_realize) {
+            if(!HiddenTP) {
+                sell_tp = market_price_sell+(TakeProfitPips*market_point);
+            }
+            
+            NewGridOrder(OP_SELL, Magic1, 0, sell_tp, InitLot());
+        }
+    } else {
+        if(HiddenTP) {
+            if((total_sell_profit+total_hedge_buy_profit >= TakeProfit || (total_sell_profit+total_hedge_buy_profit)/(total_sell_lots+total_hedge_buy_lots)*market_point >= TakeProfitPips*market_point)) {
+                CloseAllSells();
+            }
+        }
+    }
+
+    // **************************************************
+    // SELLS == 1
+    // **************************************************
+    if(sells == 1) {
+        if(!stop_next_cycle && !rest_and_realize && MaxOrders > 0) {
+            if(Bid >= sell_price[sells-1]-Distance*market_point) {
+                NewGridOrder(OP_SELL, Magic1, false);
+            }
+        }
+    }
+
+    // **************************************************
+    // SELLS > 1
+    // **************************************************
+    if(sells > 1) {
+        if(!stop_next_cycle && !rest_and_realize) {
+            if(sells < MaxOrders) {
+                if(Bid >= sell_price[sells-1]-Distance*market_point) {
+                    if(!EnablePyramid) {
+                        NewGridOrder(OP_SELL, Magic1);
+                    } else {
+                        if(sells < HedgeLevel) {
+                            NewGridOrder(OP_SELL, Magic1);
+                        } else if(sells == HedgeLevel) {
+                            NewGridOrder(OP_SELL, Magic1);
+                            
+                            is_sell_hedging_active = true;
+                            NewGridOrder(OP_BUY, Magic2, StopLoss, 0, buy_lots[sells-1]);
+                        } else if(sells > HedgeLevel) {
+                            if(!Reload) {
+                                NewGridOrder(OP_BUY, Magic2, StopLoss, 0, total_buy_lots);
+                            } else {
+                                NewGridOrder(OP_BUY, Magic2, StopLoss, 0, buy_lots[sells-1]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

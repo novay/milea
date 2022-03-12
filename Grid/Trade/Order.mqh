@@ -1,61 +1,46 @@
-void NewOrder(int orderType, int magic, bool isHedge, double stopLoss = 0) 
-{
-    int ticket;
-    double lots;
+void NewGridOrder(int orderType, int magic, double sl = 0, double tp = 0, double init_lot = 0) {
+   int ticket;
+   double next_lot = Lot;
 
-    if(rest_and_realize && !isHedge) return;
+   if(rest_and_realize) return;
 
+   if(orderType == OP_BUY) {
+      if(Sequence == 0) next_lot = Lot;
+      if(Sequence == 1) next_lot = buy_lots[buys - 1] + buy_lots[0];
+      if(Sequence == 2) next_lot = 2 * buy_lots[buys - 1];
+      if(Sequence == 3) next_lot = Fibonacci(buys + 1) * Lot;
+      if(init_lot != 0) next_lot = init_lot;
 
-    if(stopLoss > 0) {
-        stopLoss = Bid + stopLoss * pips;
-        if(shs) {
+      if(magic == Magic1 && next_lot >= MaxLot1) next_lot = MaxLot1;
+      if(magic == Magic2 && next_lot >= MaxLot2) next_lot = MaxLot2;
 
-            hedge_sell_sl = stopLoss;
-        }
-    }
+      ticket = OrderSendReliable(Symbol(), OP_BUY, next_lot, MarketInfo(Symbol(), MODE_ASK), Slippage, sl, tp, Key, magic, 0, Blue);
+   } else {
+      if(Sequence == 0) next_lot = Lot;
+      if(Sequence == 1) next_lot = sell_lots[sells - 1] + sell_lots[0];
+      if(Sequence == 2) next_lot = 2 * sell_lots[sells - 1];
+      if(Sequence == 3) next_lot = Fibonacci(sells + 1) * Lot;
+      if(init_lot != 0) next_lot = init_lot;
 
-    if(lots > MaxLot1 && run && magic == Magic1)
-        lots = MaxLot1;
-    
-    else if(lots > MaxLot2 && run && magic == Magic2)
-        lots = MaxLot2;
+      if(magic == Magic1 && next_lot >= MaxLot1) next_lot = MaxLot1;
+      if(magic == Magic2 && next_lot >= MaxLot2) next_lot = MaxLot2;
 
-
-        
-
-    if(orderType == OP_BUY) {
-        if(Sequence == 0) lots = Lot;
-        if(Sequence == 1) lots = buy_lots[buys - 1] + buy_lots[0];
-        if(Sequence == 2) lots = 2 * buy_lots[buys - 1];
-        if(Sequence == 3) lots = Fibonacci(buys + 1) * Lot;
-
-        ticket = OrderSendReliable(Symbol(), OP_BUY, lots, MarketInfo(Symbol(), MODE_ASK), Slippage, stopLoss, 0, Key, magic, 0, Blue);
-    } else {
-        if(Sequence == 0) lots = Lot;
-        if(Sequence == 1) lots = sell_lots[sells - 1] + sell_lots[0];
-        if(Sequence == 2) lots = 2 * sell_lots[sells - 1];
-        if(Sequence == 3) lots = Fibonacci(sells + 1) * Lot;
-
-        ticket = OrderSendReliable(Symbol(), OP_SELL, lots, MarketInfo(Symbol(), MODE_BID), Slippage, stopLoss, 0, Key, magic, 0, Red);
-    }
+      ticket = OrderSendReliable(Symbol(), OP_SELL, next_lot, MarketInfo(Symbol(), MODE_BID), Slippage, sl, tp, Key, magic, 0, Red);
+   }
 }
 
-
-// **************************************************
+//**************************************************
 // Close all buys & sells position
-// **************************************************
+//**************************************************
 void CloseAll() {
    CloseAllSells();
    CloseAllBuys();
 }
 
-// **************************************************
+//**************************************************
 // Close all sells position
-// **************************************************
+//**************************************************
 void CloseAllSells() {
-   sell_max_profit = 0;
-   sell_close_profit = 0;
-
    if(sells > 0) {
       CloseAllHedgeBuys();
       for(int i = 0; i <= sells - 1; i++) {
@@ -64,13 +49,10 @@ void CloseAllSells() {
    }
 }
 
-// **************************************************
+//**************************************************
 // Close all buys position
-// **************************************************
+//**************************************************
 void CloseAllBuys() {
-   buy_max_profit = 0;
-   buy_close_profit = 0;
-
    if(buys > 0) {
       CloseAllHedgeSells();
       for(int i = 0; i <= buys - 1; i++) {
@@ -78,6 +60,8 @@ void CloseAllBuys() {
       }
    }
 }
+
+
 
 // **************************************************
 // Close all hedge sells position
@@ -105,8 +89,6 @@ void CloseAllHedgeBuys() {
 // CloseBuyHedgeAndFirstSellOrder
 //+------------------------------------------------------------------+
 void closeBuyHedgeAndFirstSellOrder() {
-   buy_max_hedge_profit = 0;
-   buy_close_hedge_profit = 0;
 
    bool retVal = OrderCloseReliable(sell_tickets[0], sell_lots[0], MarketInfo(Symbol(), MODE_ASK), Slippage, Red);
    CloseAllHedgeBuys();
@@ -126,8 +108,6 @@ void closeBuyHedgeAndLastAndSecondLastSellOrder() {
 // closeSellHedgeAndFirstBuyOrder
 //+------------------------------------------------------------------+
 void closeSellHedgeAndFirstBuyOrder() {
-   sell_max_hedge_profit = 0;
-   sell_close_hedge_profit = 0;
 
    bool retVal = OrderCloseReliable(buy_tickets[0], buy_lots[0], MarketInfo(Symbol(), MODE_BID), Slippage, Blue);
    CloseAllHedgeSells();
@@ -327,7 +307,7 @@ void HandleHedging() {
 //|  isHedgingBuyActive                                              |
 //+------------------------------------------------------------------+
 bool isHedgingBuyActive() {
-   if(is_buy_hedging_order_active) return true;
+   if(is_buy_hedging_active) return true;
    return false;
 }
 
@@ -335,7 +315,7 @@ bool isHedgingBuyActive() {
 //|  isHedgingSellActive                                             |
 //+------------------------------------------------------------------+
 bool isHedgingSellActive() {
-   if(is_sell_hedging_order_active) return true;
+   if(is_sell_hedging_active) return true;
    return false;
 }
 

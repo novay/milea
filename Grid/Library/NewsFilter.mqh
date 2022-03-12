@@ -74,7 +74,7 @@ void NewsOnTick()
         Comment("News time");
         nNewsString = "News time";
         run = false;
-        CloseAllOrders();
+        CloseAll();
 
         if(!IsTesting()) Alert("News! High Impact!");
         return;
