@@ -1,19 +1,21 @@
 //+------------------------------------------------------------------+
 //|                                                       MilEAv3.00 |
-//|                                Copyright 2020, Noviyanto Rahmadi |
+//|                                Copyright 2022, Noviyanto Rahmadi |
 //|                                          https://milea.btekno.id |
 //+------------------------------------------------------------------+
-#property link      "https://milea.btekno.id"
-#property version   "3.00"
+#define __protection__  // Enable protection settings.
+#define __time__        // Enable time filter settings.
+#define __news__        // Enable news filter settings.
+#define __display__     // Enable display information on chart.
+
+#include <MilEA/Define.h>
+#include <MilEA/Preset.h>
+
+#property copyright     ea_copy
+#property version       ea_version
+#property description   ea_name + " v" + ea_version + "\n"+ea_desc+"\n\nWARNING:\nMy Strategy is VERY AGGRESSIVE, DO WITH YOUR OWN RISK!"
+#property link          ea_link
 #property strict
-
-#property script_show_inputs
-#property description "Sample script posting a user message "
-#property description "on the wall on mql5.com"
-
-input string InpLogin      = "novay@btekno.id";    // MilEA Email (Username)
-input string InpPassword   = "password";           // MilEA Password
-input string InpAccount    = "52082362";           // MT4 Account ID
 //+------------------------------------------------------------------+
 
 #include <JSON.mqh>
@@ -35,7 +37,7 @@ int OnInit()
       char post[], result[];
       int res;
 
-      string str = "email="+InpLogin+"&password="+InpPassword+"&account_id="+InpAccount;
+      string str = "email="+MilEAEmail+"&password="+MilEAPassword+"&account_id="+MilEAAccount;
       ArrayResize(post, StringToCharArray(str, post, 0, WHOLE_ARRAY, CP_UTF8)-1);
       
       int timeout = 5000;
@@ -48,7 +50,7 @@ int OnInit()
          MessageBox(data["message"].ToStr());
          return false;
       } else {
-         // Run this bot!!!
+         // Run the BOT!
          MessageBox(data["message"].Serialize());
       }
     }
@@ -61,7 +63,9 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-
+//--- destroy timer
+   EventKillTimer();
+   
 }
 
 //+------------------------------------------------------------------+
